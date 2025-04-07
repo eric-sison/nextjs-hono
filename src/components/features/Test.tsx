@@ -10,15 +10,16 @@ export const HealthCheck: FunctionComponent = () => {
   useEffect(() => {
     const check = async () => {
       const res = await callRpc($healthcheck.healthcheck.$get());
-      if (res.error) {
-        alert(res.error);
+
+      if (res?.error) {
+        alert(res.error.message);
       }
 
-      setStatus(res.data);
+      setStatus(res?.data);
     };
 
     check();
   }, []);
 
-  return <p className="text-white">{status?.status}</p>;
+  return <p className="text-white">{status?.code}</p>;
 };

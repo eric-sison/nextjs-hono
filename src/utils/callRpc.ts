@@ -1,19 +1,26 @@
 import { ClientResponse } from 'hono/client';
+import { MyError } from './myError';
 
-export const callRpc = async <T>(
-  rpc: Promise<ClientResponse<T>>,
-): Promise<{ data: T; error: null } | { data: null; error: string }> => {
+type RpcResponse<T> = {
+  data: T | null;
+  error: MyError | null;
+};
+
+export const callRpc = async <T>(rpc: Promise<ClientResponse<T>>): Promise<RpcResponse<T> | undefined> => {
   try {
     const data = await rpc;
 
     if (!data.ok) {
-      const res = await data.text();
-      return { data: null, error: res };
+      console.log('There is an error!');
+      return;
     }
 
     const res = await data.json();
     return { data: res as T, error: null };
   } catch (error) {
-    return { data: null, error: (error as Error).message };
+    if (error instanceof MyError) {
+      console.log(error.code, '<====');
+      return { data: null, error };
+    }
   }
 };
